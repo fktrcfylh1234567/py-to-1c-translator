@@ -32,6 +32,7 @@ def replace_codewords_operators(line):
     line = re.sub(' and ', ' И ', line)
     line = re.sub(' or ', ' ИЛИ ', line)
     line = re.sub(' != ', ' <> ', line)
+    line = re.sub(' == ', ' = ', line)
 
     return line
 
@@ -40,6 +41,13 @@ for line in py_code:
     _depth = line_depth(line)
 
     line = replace_codewords_operators(line)
+
+    if re.search('(elif|else)', line) and stack[len(stack) - 1] == Scopes.loop_operator:
+        new_line = ' ' * (depth - 1) * 4
+        stack.pop(len(stack) - 1)
+        new_line += 'КонецЦикла;'
+        output_code.append(new_line)
+        depth -= 1
 
     if _depth < depth and not re.search('(elif|else)', line):
         for i in range(depth - _depth):

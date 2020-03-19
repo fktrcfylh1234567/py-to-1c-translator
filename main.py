@@ -1,7 +1,10 @@
 import re
+import sys
 from enum import Enum
 
-py_code = open('script.py', 'r').read().split('\n')
+path = sys.argv[1]
+
+py_code = open(path, 'r').read().split('\n')
 
 output_code = list()
 stack = list()
@@ -113,5 +116,6 @@ for line in py_code:
     else:
         output_code.append(line)
 
-for line in output_code:
-    print(line)
+with open('output.txt', 'w') as f:
+    for line in output_code:
+        f.write("%s\n" % line)

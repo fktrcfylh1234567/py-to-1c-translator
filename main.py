@@ -34,15 +34,39 @@ def replace_codewords_operators(line):
     line = re.sub(' != ', ' <> ', line)
     line = re.sub(' == ', ' = ', line)
 
+    line = re.sub('continue', 'Продолжить', line)
+    line = re.sub('break', 'Прервать', line)
+
     return line
 
+
+def process_collections(line):
+    if re.search('len', line):
+        len_exp = re.search('len\\((.+)\\)', line)
+        line = re.sub('len\\(.+\\)', f'{len_exp[1]}.Количество()', line)
+
+    if re.search('del', line):
+        exp_del = re.search('del (.+)\\[(.+)\\]', line)
+        line = re.sub('del .+\\[.+\\]',
+                      f'{exp_del[1]}.Удалить({exp_del[2]})', line)
+
+    line = re.sub('append', 'Добавить', line)
+    line = re.sub('insert', 'Вставить', line)
+
+    return line
+
+
+py_code = list(filter(lambda line: line != "", py_code))
+py_code.append("")
 
 for line in py_code:
     _depth = line_depth(line)
 
     line = replace_codewords_operators(line)
+    line = process_collections(line)
 
-    if re.search('(elif|else)', line) and stack[len(stack) - 1] == Scopes.loop_operator:
+    if re.search('(elif|else)', line) and stack[
+        len(stack) - 1] == Scopes.loop_operator:
         new_line = ' ' * (depth - 1) * 4
         stack.pop(len(stack) - 1)
         new_line += 'КонецЦикла;'
